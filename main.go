@@ -29,6 +29,7 @@ var (
 	url     = "localhost:8000"
 	api     = "/api"
 	tx      = "/tx.yaws"
+	rdht    = "/rdht.yaws"
 	dht_raw = "/dht_raw.yaws"
 	pubsub  = "/pubsub.yaws"
 	monitor = "/monitor.yaws"
@@ -45,7 +46,7 @@ func init() {
 func main() {
 	fmt.Printf("Scalaris endpoint: %s", url)
 
-	client := &Client{url: "localhost:8000"}
+	client := &Client{url: "192.168.42.10:8000"}
 
 	res, err := client.TxWrite("hello", "woot")
 	if err != nil {
@@ -170,6 +171,21 @@ func (c *Client) TestAndSet(key string, oldValue interface{}, newValue interface
 		log.Fatalf("Err: %v", err)
 	}
 	return res, nil
+}
+
+func (c *Client) Delete(key string) error {
+	// {"write": {"key": <key>, "old": <json_value>, "new": <json_value>} }
+	data := map[string]interface{}{
+		"key": key,
+	}
+
+	url := fmt.Sprint("http://", c.url, api, rdht)
+	_, err := Call(url, "delete", 1, []interface{}{data})
+	if err != nil {
+		log.Fatalf("Err: %v", err)
+		return err
+	}
+	return nil
 }
 
 //func tx_suite(ops ...Operation) {
