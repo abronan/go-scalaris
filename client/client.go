@@ -26,14 +26,17 @@ type Client struct {
 	Url string
 }
 
-var (
-	url     = "localhost:8000"
+const (
 	api     = "/api"
 	tx      = "/tx.yaws"
 	rdht    = "/rdht.yaws"
 	dht_raw = "/dht_raw.yaws"
 	pubsub  = "/pubsub.yaws"
 	monitor = "/monitor.yaws"
+)
+
+var (
+	url = "localhost:8000"
 )
 
 func init() {
