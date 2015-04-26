@@ -100,6 +100,7 @@ func write() {
 
 }
 
+// FIXME not working
 func (c *Client) TestAndSet(key string, oldValue interface{}, newValue interface{}) (map[string]interface{}, error) {
 	// {"write": {"key": <key>, "old": <json_value>, "new": <json_value>} }
 	data := map[string]interface{}{

@@ -62,7 +62,7 @@ func main() {
 	log.Info("value: ", newCounter)
 
 	// Use Scalaris Master (post REV-7316) to make this working
-	res, err = client.TestAndSet("genId", oldCounter, newCounter)
+	res, err = client.TxTestAndSet("genId", oldCounter, newCounter)
 	if err != nil {
 		log.Fatalf("Err: ", err)
 	}
