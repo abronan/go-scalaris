@@ -18,7 +18,6 @@ type WriteResp struct {
 	Reason string `json:"reason"`
 }
 
-// TODO more config parameters + TLS
 type Client struct {
 	Url string
 }
@@ -43,6 +42,16 @@ func init() {
 	}
 }
 
+// TODO Add transaction suites
+// func (c *Client) TxSuite(ops ...Operation) {
+//
+// }
+
+// Operation represents a single operation
+// to be included in a request list, this
+// can be done in the case of a transaction
+type Operation func() map[string]interface{}
+
 func NewClient(url string) (*Client, error) {
 	return &Client{Url: url}, nil
 }
@@ -52,7 +61,9 @@ func (c *Client) Read(key string) (map[string]interface{}, error) {
 	url := fmt.Sprint("http://", c.Url, api, tx)
 	res, err := Call(url, "read", 1, []interface{}{key})
 	if err != nil {
+		// TODO Parse error, throw ErrNotFound
 		log.Fatalf("Err: %v", err)
+		return nil, err
 	}
 	return res, nil
 }
@@ -61,42 +72,20 @@ func write() {
 
 }
 
-// FIXME not working
-func (c *Client) TestAndSet(key string, oldValue interface{}, newValue interface{}) (map[string]interface{}, error) {
-	// {"write": {"key": <key>, "old": <json_value>, "new": <json_value>} }
-	data := map[string]interface{}{
-		"key": key,
-		"old": encode_value(oldValue),
-		"new": encode_value(newValue),
-	}
-
-	url := fmt.Sprint("http://", c.Url, api, tx)
-	res, err := Call(url, "test_and_set", 1, []interface{}{data})
-	if err != nil {
-		log.Fatalf("Err: %v", err)
-	}
-	return res, nil
-}
-
-func (c *Client) Delete(key string) error {
+func (c *Client) Delete(key string) (map[string]interface{}, error) {
 	// {"write": {"key": <key>, "old": <json_value>, "new": <json_value>} }
 	data := map[string]interface{}{
 		"key": key,
 	}
 
 	url := fmt.Sprint("http://", c.Url, api, rdht)
-	_, err := Call(url, "delete", 1, []interface{}{data})
+	res, err := Call(url, "delete", 1, []interface{}{data})
 	if err != nil {
 		log.Fatalf("Err: %v", err)
-		return err
+		return res, err
 	}
-	return nil
+	return res, nil
 }
-
-// TODO Add transaction suites
-// func (c *Client) TxSuite(ops ...Operation) {
-//
-// }
 
 func (c *Client) TxRead(key string) (map[string]interface{}, error) {
 	data := []interface{}{
@@ -111,7 +100,9 @@ func (c *Client) TxRead(key string) (map[string]interface{}, error) {
 	url := fmt.Sprint("http://", c.Url, api, tx)
 	res, err := Call(url, "read", 1, []interface{}{data})
 	if err != nil {
+		// TODO Parse error throw ErrNotFound
 		log.Fatalf("Err: ", err)
+		return nil, err
 	}
 	return res, nil
 }

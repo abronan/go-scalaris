@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	url = "192.168.42.10:8000"
+	url = "localhost:8000"
 )
 
 // Example usage
