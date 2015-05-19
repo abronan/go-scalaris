@@ -67,6 +67,7 @@ type Operation map[string]interface{}
 // from all the operations inside the transaction
 //
 // If the operation fails, TxSuite throws the
+// ErrAbort error
 //
 //
 func (c *Client) TxSuite(ops ...Operation) (resp interface{}, err error) {
@@ -158,6 +159,27 @@ func (c *Client) TxWrite(key string, value interface{}) (map[string]interface{},
 	return res, nil
 }
 
+func (c *Client) TxAddOnNumber(key string, value int64) (map[string]interface{}, error) {
+	data := []interface{}{
+		// {"add_on_nr": {<key>: {"type": "as_is" or "as_bin", "value": <value>} } }
+		map[string]interface{}{
+			"add_on_nr": map[string]interface{}{
+				key: value,
+			},
+		},
+		// {"commit": ""}
+		commit(),
+	}
+	log.Debug("Built request: ", data)
+
+	url := fmt.Sprint("http://", c.Url, api, tx)
+	res, err := Call(url, "req_list", []interface{}{data})
+	if err != nil {
+		log.Fatalf("Err: ", err)
+	}
+	return res, nil
+}
+
 func (c *Client) TxTestAndSet(key string, oldValue interface{}, newValue interface{}) (map[string]interface{}, error) {
 	data := []interface{}{
 		// {"test_and_set": {"key": <key>, "old": <oldValue>, new: <newValue>} }
@@ -195,12 +217,23 @@ func (c *Client) TestAndSet(key string, oldValue interface{}, newValue interface
 }
 
 // Write is used as an Operation inside
-// a TxSuite, it atomically puts a value inside
-// the store
+// a TxSuite, it writes a value in the store
 func (c *Client) Write(key string, value interface{}) map[string]interface{} {
 	return map[string]interface{}{
 		"write": map[string]interface{}{
 			key: encode_value(value),
+		},
+	}
+}
+
+// AddOnNumber is used as an Operation inside
+// a TxSuite, it adds the value to the current
+// counter. Key must contain a number. If 'key'
+// does not exists. AddOnNumber creates the pair
+func (c *Client) AddOnNumber(key string, value int64) map[string]interface{} {
+	return map[string]interface{}{
+		"add_on_nr": map[string]interface{}{
+			key: value,
 		},
 	}
 }

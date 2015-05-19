@@ -67,4 +67,10 @@ func main() {
 		log.Fatalf("Err: ", err)
 	}
 	log.Info(res)
+
+	res, err = client.TxAddOnNumber("genId", 5)
+	if err != nil {
+		log.Fatalf("Err: ", err)
+	}
+	log.Info(res)
 }
