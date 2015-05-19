@@ -10,10 +10,14 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-func Call(address string, method string, id interface{}, params []interface{}) (map[string]interface{}, error) {
+var (
+	jsonRpcVersion = 1
+)
+
+func Call(address string, method string, params []interface{}) (map[string]interface{}, error) {
 	data, err := json.Marshal(map[string]interface{}{
 		"method": method,
-		"id":     id,
+		"id":     jsonRpcVersion,
 		"params": params,
 	})
 	fmt.Printf(string(data))
